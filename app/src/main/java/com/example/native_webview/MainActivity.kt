@@ -10,11 +10,18 @@ import android.os.Bundle
 import android.os.Message
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.webkit.*
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+
+import android.webkit.WebView
+import android.widget.Toast
+import com.example.native_webview.service.LockScreenService
+import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity() {
@@ -30,14 +37,6 @@ class MainActivity : AppCompatActivity() {
 
         webView = findViewById(R.id.webView1)
         mProgressBar = findViewById(R.id.progress1)
-
-        // 잠금화면 점유
-        window.addFlags(
-            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-        )
-
 
         webView.apply {
             webViewClient = WebViewClientClass() // new WebViewClient()); //클릭시 새창 안뜨게
@@ -81,6 +80,7 @@ class MainActivity : AppCompatActivity() {
             settings.useWideViewPort = true //화면 사이즈 맞추기 허용여부
             settings.setSupportZoom(true) //화면 줌 허용여부
             settings.builtInZoomControls = true //화면 확대 축소 허용여부
+            settings.setSupportMultipleWindows(true);
 
             // Enable and setup web view cache
             settings.cacheMode =
@@ -146,10 +146,44 @@ class MainActivity : AppCompatActivity() {
     //웹뷰에서 홈페이지를 띄웠을때 새창이 아닌 기존창에서 실행이 되도록 아래 코드를 넣어준다.
     inner class WebViewClientClass : WebViewClient() {
         //페이지 이동
+//        override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+//            view.loadUrl(url)
+//            return true
+//        }
         override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-            view.loadUrl(url)
+
+            if (url.startsWith("intent:")) {
+                try {
+                    val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+                    val existPackage =
+                        packageManager.getLaunchIntentForPackage(intent.getPackage()!!)
+                    if (existPackage != null) {
+                        startActivity(intent)
+                    } else {
+                        val marketIntent = Intent(Intent.ACTION_VIEW)
+                        marketIntent.data = Uri.parse("market://details?id=" + intent.getPackage())
+                    }
+                    return true
+                } catch (e: Exception) {
+                    try {
+                        val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+                        if (intent.action!!.contains("kakao")) {
+                            view.loadUrl(intent.getStringExtra("browser_fallback_url")!!)
+                        } else {
+                            val marketIntent = Intent(Intent.ACTION_VIEW)
+                            marketIntent.data
+                                Uri.parse("market://details?id=" + intent.getPackage())
+                        }
+                    } catch (ex: Exception) {
+                        ex.printStackTrace()
+                    }
+                }
+            } else {
+                view.loadUrl(url)
+            }
             return true
         }
+
 
         override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
@@ -183,6 +217,32 @@ class MainActivity : AppCompatActivity() {
                 DialogInterface.OnClickListener { dialog, which -> handler.cancel() })
             val dialog: android.app.AlertDialog? = builder.create()
             dialog?.show()
+        }
+    }
+
+    // 잠금화면 점유
+    fun checkPermission() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(!Settings.canDrawOverlays(this)) {
+                val uri = Uri.fromParts("package", packageName, null)
+                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, uri)
+                startActivityForResult(intent, 0)
+            } else {
+                val intent = Intent(applicationContext, LockScreenService::class.java)
+                startForegroundService(intent)
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == 0) {
+            if(!Settings.canDrawOverlays(this)) {
+                Toast.makeText(this, "해라", Toast.LENGTH_LONG).show()
+            } else {
+                val intent = Intent(applicationContext, LockScreenService::class.java)
+                startForegroundService(intent)
+            }
         }
     }
 

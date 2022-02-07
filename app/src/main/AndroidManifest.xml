@@ -12,6 +12,15 @@
         android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.Native_webview">
+
+        <activity
+        android:name=".LockScreenActivity"
+        android:label="@string/title_activity_lock_screen"
+        android:excludeFromRecents="true"
+        android:launchMode="singleInstance"
+        android:taskAffinity="com.bluewhale.lockscreentest.lockscreen"/>
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -21,6 +30,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
