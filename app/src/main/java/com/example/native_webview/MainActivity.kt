@@ -19,12 +19,15 @@ import android.net.Uri
 import android.provider.Settings
 
 import android.webkit.WebView
+import android.widget.Button
 import android.widget.Toast
-import com.example.native_webview.service.LockScreenService
 import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity() {
+
+//    private lateinit var onBtn: Button
+//    private lateinit var offBtn: Button
 
     private lateinit var webView: WebView
     private lateinit var mProgressBar: ProgressBar
@@ -33,10 +36,26 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        
+
+        // 잠금화면 추가
+
+        var onBtn : Button = findViewById(R.id.onBtn)
+        var offBtn : Button = findViewById(R.id.off)
+//        onBtn = findViewById<View>(R.id.button) as Button
+//        offBtn = findViewById<View>(R.id.button2) as Button
+        onBtn.setOnClickListener(View.OnClickListener {
+            val intent = Intent(applicationContext, ScreenService::class.java)
+            startService(intent)
+        })
+        offBtn.setOnClickListener(View.OnClickListener {
+            val intent = Intent(applicationContext, ScreenService::class.java)
+            stopService(intent)
+        })
+
+        ////
 
         webView = findViewById(R.id.webView1)
-        mProgressBar = findViewById(R.id.progress1)
+//        mProgressBar = findViewById(R.id.progress1)
 
         webView.apply {
             webViewClient = WebViewClientClass() // new WebViewClient()); //클릭시 새창 안뜨게
@@ -221,30 +240,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     // 잠금화면 점유
-    fun checkPermission() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if(!Settings.canDrawOverlays(this)) {
-                val uri = Uri.fromParts("package", packageName, null)
-                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, uri)
-                startActivityForResult(intent, 0)
-            } else {
-                val intent = Intent(applicationContext, LockScreenService::class.java)
-                startForegroundService(intent)
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if(requestCode == 0) {
-            if(!Settings.canDrawOverlays(this)) {
-                Toast.makeText(this, "해라", Toast.LENGTH_LONG).show()
-            } else {
-                val intent = Intent(applicationContext, LockScreenService::class.java)
-                startForegroundService(intent)
-            }
-        }
-    }
+//    fun checkPermission() {
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            if(!Settings.canDrawOverlays(this)) {
+//                val uri = Uri.fromParts("package", packageName, null)
+//                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, uri)
+//                startActivityForResult(intent, 0)
+//            } else {
+//                val intent = Intent(applicationContext, LockScreenService::class.java)
+//                startForegroundService(intent)
+//            }
+//        }
+//    }
+//
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        if(requestCode == 0) {
+//            if(!Settings.canDrawOverlays(this)) {
+//                Toast.makeText(this, "해라", Toast.LENGTH_LONG).show()
+//            } else {
+//                val intent = Intent(applicationContext, LockScreenService::class.java)
+//                startForegroundService(intent)
+//            }
+//        }
+//    }
 
 
 }
