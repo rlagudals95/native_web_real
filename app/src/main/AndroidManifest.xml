@@ -12,20 +12,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Native_webview">
-        <activity
-            android:name=".LockScreenActivity"
+<!--        <activity-->
+<!--            android:name=".LockScreenActivity"-->
 
-            android:theme="@style/Theme.Native_webview"
-            android:excludeFromRecents="true"
-            android:launchMode="singleInstance"
-            android:taskAffinity="com.bluewhale.lockscreentest.lockscreen"/>
+<!--            android:theme="@style/Theme.Native_webview"-->
+<!--            android:excludeFromRecents="true"-->
+<!--            android:launchMode="singleInstance"-->
+<!--            android:taskAffinity="com.bluewhale.lockscreentest.lockscreen"/>-->
 
 
         <activity android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 //    private lateinit var offBtn: Button
 
     private lateinit var webView: WebView
-    private lateinit var mProgressBar: ProgressBar
+//    private lateinit var mProgressBar: ProgressBar
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,23 +39,23 @@ class MainActivity : AppCompatActivity() {
 
         // 잠금화면 추가
 
-        var onBtn : Button = findViewById(R.id.onBtn)
-        var offBtn : Button = findViewById(R.id.off)
-//        onBtn = findViewById<View>(R.id.button) as Button
-//        offBtn = findViewById<View>(R.id.button2) as Button
-        onBtn.setOnClickListener(View.OnClickListener {
-            val intent = Intent(applicationContext, ScreenService::class.java)
-            startService(intent)
-        })
-        offBtn.setOnClickListener(View.OnClickListener {
-            val intent = Intent(applicationContext, ScreenService::class.java)
-            stopService(intent)
-        })
+//        var onBtn : Button = findViewById(R.id.onBtn)
+//        var offBtn : Button = findViewById(R.id.off)
+//
+//        onBtn.setOnClickListener(View.OnClickListener {
+//            val intent = Intent(applicationContext, ScreenService::class.java)
+//            startService(intent)
+//        })
+//        offBtn.setOnClickListener(View.OnClickListener {
+//            val intent = Intent(applicationContext, ScreenService::class.java)
+//            stopService(intent)
+//        })
 
         ////
 
         webView = findViewById(R.id.webView1)
 //        mProgressBar = findViewById(R.id.progress1)
+
 
         webView.apply {
             webViewClient = WebViewClientClass() // new WebViewClient()); //클릭시 새창 안뜨게
@@ -104,6 +104,7 @@ class MainActivity : AppCompatActivity() {
             // Enable and setup web view cache
             settings.cacheMode =
                 WebSettings.LOAD_NO_CACHE //브라우저 캐시 허용여부  // WebSettings.LOAD_DEFAULT
+
             settings.domStorageEnabled = true //로컬저장소 허용여부
             settings.displayZoomControls = true
 
@@ -206,13 +207,13 @@ class MainActivity : AppCompatActivity() {
 
         override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
-            mProgressBar.visibility = ProgressBar.VISIBLE
+//            mProgressBar.visibility = ProgressBar.VISIBLE
             webView.visibility = View.INVISIBLE
         }
 
         override fun onPageCommitVisible(view: WebView, url: String) {
             super.onPageCommitVisible(view, url)
-            mProgressBar.visibility = ProgressBar.GONE
+//            mProgressBar.visibility = ProgressBar.GONE
             webView.visibility = View.VISIBLE
         }
 
