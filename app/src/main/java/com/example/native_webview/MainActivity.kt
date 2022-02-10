@@ -2,6 +2,7 @@ package com.example.native_webview
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.net.http.SslError
@@ -16,11 +17,15 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import android.content.Intent
 import android.net.Uri
+import android.os.PowerManager
+import android.os.PowerManager.WakeLock
 import android.provider.Settings
+import android.view.WindowManager
 
 import android.webkit.WebView
 import android.widget.Button
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import java.lang.Exception
 
 
@@ -31,6 +36,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
 //    private lateinit var mProgressBar: ProgressBar
+
+
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +58,42 @@ class MainActivity : AppCompatActivity() {
 //            stopService(intent)
 //        })
 
+        getWindow().addFlags(
+            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+            or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+            or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
         ////
+
+
+        // 잠금화면 점유
+        val wakeLock: PowerManager.WakeLock =
+            (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply {
+                    acquire()
+                }
+            }
+//        var sCpuWakeLock: WakeLock?
+//
+//
+////        if (sCpuWakeLock != null) {
+////            return
+////        }
+//        sCpuWakeLock = getSystemService(POWER_SERVICE).newWakeLock(
+//            PowerManager.SCREEN_BRIGHT_WAKE_LOCK or
+//                    PowerManager.ACQUIRE_CAUSES_WAKEUP or
+//                    PowerManager.ON_AFTER_RELEASE, "hi"
+//        )
+//
+//        sCpuWakeLock.acquire()
+//
+//
+//        if (sCpuWakeLock != null) {
+//            sCpuWakeLock.release()
+//            sCpuWakeLock = null
+//        }
+
+
 
         webView = findViewById(R.id.webView1)
 //        mProgressBar = findViewById(R.id.progress1)
@@ -240,7 +282,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // 잠금화면 점유
+
+
 //    fun checkPermission() {
 //        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 //            if(!Settings.canDrawOverlays(this)) {
