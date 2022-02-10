@@ -27,6 +27,10 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import java.lang.Exception
+import android.webkit.WebResourceRequest
+
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -37,12 +41,102 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
 //    private lateinit var mProgressBar: ProgressBar
 
+    inner class WebViewClientClass : WebViewClient() {
+        //페이지 이동
+
+//        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+//            return checkUrl(url)
+//        }
+
+//        private fun checkUrl(url: String): Boolean {
+//            //웹뷰 환경에서 '카카오로그인'버튼을 눌러서 MY_KAKAO_LOGIN_URL 로 이동하려고 한다.
+//            if (url.contains("/MY_KAKAO_LOGIN_URL")) {
+//                //실제 카카오톡 로그인 기능을 실행할 LoginActivity 를 실행시킨다.
+//                val intent = Intent(this, LoginActivity::class.java)
+//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+//                startActivityForResult(intent, REQ_CODE)
+//                return true //리턴 true 하면, 웹뷰에서 실제로 위 URL 로 이동하지는 않는다.
+//            }
+//            return false
+//        }
+
+        override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+
+            if (url.startsWith("intent:")) {
+                try {
+                    val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+                    val existPackage =
+                        packageManager.getLaunchIntentForPackage(intent.getPackage()!!)
+                    if (existPackage != null) {
+                        startActivity(intent)
+                    } else {
+                        val marketIntent = Intent(Intent.ACTION_VIEW)
+                        marketIntent.data = Uri.parse("market://details?id=" + intent.getPackage())
+                    }
+                    return true
+                } catch (e: Exception) {
+                    try {
+                        val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+                        if (intent.action!!.contains("kakao")) {
+                            view.loadUrl(intent.getStringExtra("browser_fallback_url")!!)
+                        } else {
+                            val marketIntent = Intent(Intent.ACTION_VIEW)
+                            marketIntent.data
+                            Uri.parse("market://details?id=" + intent.getPackage())
+                        }
+                    } catch (ex: Exception) {
+                        ex.printStackTrace()
+                    }
+                }
+            } else {
+                view.loadUrl(url)
+            }
+            return true
+        }
+
+
+        override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
+            super.onPageStarted(view, url, favicon)
+//            mProgressBar.visibility = ProgressBar.VISIBLE
+            webView.visibility = View.INVISIBLE
+        }
+
+        override fun onPageCommitVisible(view: WebView, url: String) {
+            super.onPageCommitVisible(view, url)
+//            mProgressBar.visibility = ProgressBar.GONE
+            webView.visibility = View.VISIBLE
+        }
+
+
+        override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
+            var builder: android.app.AlertDialog.Builder =
+                android.app.AlertDialog.Builder(this@MainActivity)
+            var message = "SSL Certificate error."
+            when (error.primaryError) {
+                SslError.SSL_UNTRUSTED -> message = "The certificate authority is not trusted."
+                SslError.SSL_EXPIRED -> message = "The certificate has expired."
+                SslError.SSL_IDMISMATCH -> message = "The certificate Hostname mismatch."
+                SslError.SSL_NOTYETVALID -> message = "The certificate is not yet valid."
+            }
+            message += " Do you want to continue anyway?"
+            builder.setTitle("SSL Certificate Error")
+            builder.setMessage(message)
+            builder.setPositiveButton("continue",
+                DialogInterface.OnClickListener { _, _ -> handler.proceed() })
+            builder.setNegativeButton("cancel",
+                DialogInterface.OnClickListener { dialog, which -> handler.cancel() })
+            val dialog: android.app.AlertDialog? = builder.create()
+            dialog?.show()
+        }
+    }
 
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
 
         // 잠금화면 추가
 
@@ -142,13 +236,25 @@ class MainActivity : AppCompatActivity() {
             settings.setSupportZoom(true) //화면 줌 허용여부
             settings.builtInZoomControls = true //화면 확대 축소 허용여부
             settings.setSupportMultipleWindows(true);
-
+            settings.setDisplayZoomControls(false); // 화면 확대 축소 버튼 숨김
             // Enable and setup web view cache
             settings.cacheMode =
                 WebSettings.LOAD_NO_CACHE //브라우저 캐시 허용여부  // WebSettings.LOAD_DEFAULT
 
             settings.domStorageEnabled = true //로컬저장소 허용여부
             settings.displayZoomControls = true
+
+            // 카카오 로그인 시 필요
+            settings.setAllowContentAccess(true);
+            settings.setAllowFileAccess(true);
+            val cm = CookieManager.getInstance()
+            cm.setAcceptCookie(true)
+            cm.setAcceptThirdPartyCookies(webView, true);
+            webView.setWebViewClient(WebViewClientClass())
+
+            val agentNew = settings.userAgentString.toString() + " MY_HYBRID_APP"
+            settings.setUserAgentString(agentNew)
+
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 settings.safeBrowsingEnabled = true  // api 26
@@ -206,81 +312,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     //웹뷰에서 홈페이지를 띄웠을때 새창이 아닌 기존창에서 실행이 되도록 아래 코드를 넣어준다.
-    inner class WebViewClientClass : WebViewClient() {
-        //페이지 이동
-//        override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-//            view.loadUrl(url)
-//            return true
-//        }
-        override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
 
-            if (url.startsWith("intent:")) {
-                try {
-                    val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
-                    val existPackage =
-                        packageManager.getLaunchIntentForPackage(intent.getPackage()!!)
-                    if (existPackage != null) {
-                        startActivity(intent)
-                    } else {
-                        val marketIntent = Intent(Intent.ACTION_VIEW)
-                        marketIntent.data = Uri.parse("market://details?id=" + intent.getPackage())
-                    }
-                    return true
-                } catch (e: Exception) {
-                    try {
-                        val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
-                        if (intent.action!!.contains("kakao")) {
-                            view.loadUrl(intent.getStringExtra("browser_fallback_url")!!)
-                        } else {
-                            val marketIntent = Intent(Intent.ACTION_VIEW)
-                            marketIntent.data
-                                Uri.parse("market://details?id=" + intent.getPackage())
-                        }
-                    } catch (ex: Exception) {
-                        ex.printStackTrace()
-                    }
-                }
-            } else {
-                view.loadUrl(url)
-            }
-            return true
-        }
-
-
-        override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
-            super.onPageStarted(view, url, favicon)
-//            mProgressBar.visibility = ProgressBar.VISIBLE
-            webView.visibility = View.INVISIBLE
-        }
-
-        override fun onPageCommitVisible(view: WebView, url: String) {
-            super.onPageCommitVisible(view, url)
-//            mProgressBar.visibility = ProgressBar.GONE
-            webView.visibility = View.VISIBLE
-        }
-
-
-        override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
-            var builder: android.app.AlertDialog.Builder =
-                android.app.AlertDialog.Builder(this@MainActivity)
-            var message = "SSL Certificate error."
-            when (error.primaryError) {
-                SslError.SSL_UNTRUSTED -> message = "The certificate authority is not trusted."
-                SslError.SSL_EXPIRED -> message = "The certificate has expired."
-                SslError.SSL_IDMISMATCH -> message = "The certificate Hostname mismatch."
-                SslError.SSL_NOTYETVALID -> message = "The certificate is not yet valid."
-            }
-            message += " Do you want to continue anyway?"
-            builder.setTitle("SSL Certificate Error")
-            builder.setMessage(message)
-            builder.setPositiveButton("continue",
-                DialogInterface.OnClickListener { _, _ -> handler.proceed() })
-            builder.setNegativeButton("cancel",
-                DialogInterface.OnClickListener { dialog, which -> handler.cancel() })
-            val dialog: android.app.AlertDialog? = builder.create()
-            dialog?.show()
-        }
-    }
 
 
 

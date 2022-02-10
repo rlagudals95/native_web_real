@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">native_webview</string>
+    <string name="kakao_app_key">e0d51523e6f60d267a1b1a7d39eff6ac</string>
 </resources>

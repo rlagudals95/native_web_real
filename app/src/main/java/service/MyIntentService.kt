@@ -11,15 +11,19 @@ import receiver.MyWakefulReceiver
 const val NOTIFICATION_ID = 1
 
 class MyIntentService : IntentService("MyIntentService") {
+
+    lateinit var myWakefulReceiver :MyWakefulReceiver
+
+
     private val notificationManager: NotificationManager? = null
     var builder: NotificationCompat.Builder? = null
     override fun onHandleIntent(intent: Intent?) {
         val extras = intent!!.extras
+
         // Do the work that requires your app to keep the CPU running.
         // ...
         // Release the wake lock provided by the WakefulBroadcastReceiver.
-        MyWakefulReceiver.completeWakefulIntent(intent)
-
+        myWakefulReceiver.completeWakefulIntent(intent)
     }
-
 }
+
