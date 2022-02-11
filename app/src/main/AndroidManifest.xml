@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" /><!-- 잠금화면 점유 -->
 
     <application
@@ -32,8 +33,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-<!--        <service android:name=".service.LockScreenService"-->
+        <!--        <service android:name=".service.LockScreenService"-->
 <!--            android:enabled="true"-->
 <!--            android:permission="android.permission.SYSTEM_ALERT_WINDOW"-->
 <!--            android:exported="false"/>-->

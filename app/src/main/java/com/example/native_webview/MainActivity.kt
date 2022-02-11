@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
 //    private lateinit var mProgressBar: ProgressBar
+    private val REQ_CODE: Int = 111
 
     inner class WebViewClientClass : WebViewClient() {
         //페이지 이동
@@ -59,6 +60,7 @@ class MainActivity : AppCompatActivity() {
 //            }
 //            return false
 //        }
+
 
         override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
 
@@ -92,6 +94,18 @@ class MainActivity : AppCompatActivity() {
                 view.loadUrl(url)
             }
             return true
+        }
+
+        fun checkUrl(url: String): Boolean {
+            //웹뷰 환경에서 '카카오로그인'버튼을 눌러서 MY_KAKAO_LOGIN_URL 로 이동하려고 한다.
+            if (url.contains("/MY_KAKAO_LOGIN_URL")) {
+                //실제 카카오톡 로그인 기능을 실행할 LoginActivity 를 실행시킨다.
+                val intent = Intent(applicationContext , LoginActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivityForResult(intent, REQ_CODE)
+                return true //리턴 true 하면, 웹뷰에서 실제로 위 URL 로 이동하지는 않는다.
+            }
+            return false
         }
 
 
