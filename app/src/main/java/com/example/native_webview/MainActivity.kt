@@ -1,6 +1,7 @@
 package com.example.native_webview
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
@@ -20,6 +21,7 @@ import android.net.Uri
 import android.os.PowerManager
 import android.os.PowerManager.WakeLock
 import android.provider.Settings
+import android.util.Log
 import android.view.WindowManager
 
 import android.webkit.WebView
@@ -28,9 +30,8 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import java.lang.Exception
 import android.webkit.WebResourceRequest
-
-
-
+import com.kakao.sdk.common.util.Utility.getKeyHash
+import com.kakao.util.helper.Utility
 
 
 class MainActivity : AppCompatActivity() {
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 //    private lateinit var offBtn: Button
 
     private lateinit var webView: WebView
-//    private lateinit var mProgressBar: ProgressBar
+//  private lateinit var mProgressBar: ProgressBar
     private val REQ_CODE: Int = 111
 
     inner class WebViewClientClass : WebViewClient() {
@@ -48,12 +49,12 @@ class MainActivity : AppCompatActivity() {
 //        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
 //            return checkUrl(url)
 //        }
-
+//
 //        private fun checkUrl(url: String): Boolean {
 //            //웹뷰 환경에서 '카카오로그인'버튼을 눌러서 MY_KAKAO_LOGIN_URL 로 이동하려고 한다.
-//            if (url.contains("/MY_KAKAO_LOGIN_URL")) {
+//            if (url.contains("http://memento.webview.s3-website.ap-northeast-2.amazonaws.com/oauth")) {
 //                //실제 카카오톡 로그인 기능을 실행할 LoginActivity 를 실행시킨다.
-//                val intent = Intent(this, LoginActivity::class.java)
+//                val intent = Intent(applicationContext, LoginActivity::class.java)
 //                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 //                startActivityForResult(intent, REQ_CODE)
 //                return true //리턴 true 하면, 웹뷰에서 실제로 위 URL 로 이동하지는 않는다.
@@ -96,17 +97,6 @@ class MainActivity : AppCompatActivity() {
             return true
         }
 
-        fun checkUrl(url: String): Boolean {
-            //웹뷰 환경에서 '카카오로그인'버튼을 눌러서 MY_KAKAO_LOGIN_URL 로 이동하려고 한다.
-            if (url.contains("/MY_KAKAO_LOGIN_URL")) {
-                //실제 카카오톡 로그인 기능을 실행할 LoginActivity 를 실행시킨다.
-                val intent = Intent(applicationContext , LoginActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                startActivityForResult(intent, REQ_CODE)
-                return true //리턴 true 하면, 웹뷰에서 실제로 위 URL 로 이동하지는 않는다.
-            }
-            return false
-        }
 
 
         override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
@@ -149,8 +139,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val keyHash = Utility.getKeyHash(this /* context */)
 
-
+        System.out.println("키 해쉬 값 구하기" + keyHash)
 
         // 잠금화면 추가
 
@@ -292,6 +283,36 @@ class MainActivity : AppCompatActivity() {
 
         val url = "http://memento.webview.s3-website.ap-northeast-2.amazonaws.com"
         webView.loadUrl(url)
+
+
+
+        fun onActivityResult(requestCode :Int, resultCode: Int, data : Intent?) {
+            super.onActivityResult(requestCode, resultCode, data);
+
+            if(requestCode == REQ_CODE && resultCode == Activity.RESULT_OK) {
+                var name = data?.getStringExtra("name");
+                var email = data?.getStringExtra("email");
+                var photoUrl = data?.getStringExtra("photoUrl");
+                var kkId = data?.getStringExtra("kkId");
+                var kkAccessToken = data?.getStringExtra("kkAccessToken");
+
+                var url = "https://MY_DOMAIN.COM/HANDLE_LOGIN_URL";
+                url += "?kkAccessToken="+kkAccessToken;
+                if(email != null){
+                    url += "&email="+email;
+                }
+                if(photoUrl != null){
+                    url += "&photoUrl="+photoUrl;
+                }
+                if(kkId != null){
+                    url += "&kkId="+kkId;
+                }
+                if(name != null){
+                    url += "&name="+name;
+                }
+                this.webView.loadUrl(url);
+            }
+        }
 
         // 앞 뒤로가기 버튼추가
 //        previos_btn.setOnClickListener {
