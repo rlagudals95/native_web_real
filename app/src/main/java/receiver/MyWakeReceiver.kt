@@ -15,4 +15,8 @@ class MyWakefulReceiver : WakefulBroadcastReceiver() {
             WakefulBroadcastReceiver.startWakefulService(context, service)
         }
     }
+
+    fun completeWakefulIntent(intent: Intent) {
+
+    }
 }
