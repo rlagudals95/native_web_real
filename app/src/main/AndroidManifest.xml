@@ -33,6 +33,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".service.LockScreenService"
+            android:enabled="true"
+            android:permission="android.permission.SYSTEM_ALERT_WINDOW"
+            android:exported="false"/>
+
         <meta-data
             android:name="com.kakao.sdk.AppKey"
             android:value="@string/kakao_app_key" /> <!-- 네이티브 앱 키 설정 -->

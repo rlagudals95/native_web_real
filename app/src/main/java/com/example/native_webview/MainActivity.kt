@@ -30,6 +30,8 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import java.lang.Exception
 import android.webkit.WebResourceRequest
+import androidx.annotation.RequiresApi
+import com.example.native_webview.service.LockScreenService
 import com.kakao.sdk.common.util.Utility.getKeyHash
 import com.kakao.util.helper.Utility
 
@@ -135,10 +137,12 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        checkPermission()
         val keyHash = Utility.getKeyHash(this /* context */)
 
         System.out.println("키 해쉬 값 구하기" + keyHash)
@@ -351,30 +355,32 @@ class MainActivity : AppCompatActivity() {
 
 
 
-//    fun checkPermission() {
-//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            if(!Settings.canDrawOverlays(this)) {
-//                val uri = Uri.fromParts("package", packageName, null)
-//                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, uri)
-//                startActivityForResult(intent, 0)
-//            } else {
-//                val intent = Intent(applicationContext, LockScreenService::class.java)
-//                startForegroundService(intent)
-//            }
-//        }
-//    }
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun checkPermission() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(!Settings.canDrawOverlays(this)) {
+                val uri = Uri.fromParts("package", packageName, null)
+                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, uri)
+                startActivityForResult(intent, 0)
+            } else {
+                val intent = Intent(applicationContext, LockScreenService::class.java)
+                startForegroundService(intent)
+            }
+        }
+    }
 //
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, data)
-//        if(requestCode == 0) {
-//            if(!Settings.canDrawOverlays(this)) {
-//                Toast.makeText(this, "해라", Toast.LENGTH_LONG).show()
-//            } else {
-//                val intent = Intent(applicationContext, LockScreenService::class.java)
-//                startForegroundService(intent)
-//            }
-//        }
-//    }
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == 0) {
+            if(!Settings.canDrawOverlays(this)) {
+                Toast.makeText(this, "해라", Toast.LENGTH_LONG).show()
+            } else {
+                val intent = Intent(applicationContext, LockScreenService::class.java)
+                startForegroundService(intent)
+            }
+        }
+    }
 
 
 }
