@@ -374,7 +374,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == 0) {
             if(!Settings.canDrawOverlays(this)) {
-                Toast.makeText(this, "해라", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "hello", Toast.LENGTH_LONG).show()
             } else {
                 val intent = Intent(applicationContext, LockScreenService::class.java)
                 startForegroundService(intent)
