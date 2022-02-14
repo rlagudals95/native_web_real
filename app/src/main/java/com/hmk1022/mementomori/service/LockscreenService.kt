@@ -1,4 +1,4 @@
-package com.example.native_webview.service
+package com.hmk1022.mementomori.service
 
 import android.app.*
 import android.content.BroadcastReceiver
@@ -8,9 +8,9 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.IBinder
 import androidx.annotation.RequiresApi
-import com.example.native_webview.LockScreenActivity
-import com.example.native_webview.MainActivity
-import com.example.native_webview.R
+import com.hmk1022.mementomori.LockScreenActivity
+import com.hmk1022.mementomori.MainActivity
+import com.hmk1022.mementomori.R
 
 class LockScreenService : Service() {
     private val receiver = object : BroadcastReceiver() {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.native_webview">
+    package="com.hmk1022.mementomori">
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
@@ -15,11 +15,11 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_time"
+        android:roundIcon="@mipmap/ic_time_round"
         android:label="@string/app_name"
         android:usesCleartextTraffic="true"
         android:keepScreenOn="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Native_webview">
 <!--        <activity-->
@@ -31,7 +31,7 @@
 <!--            android:taskAffinity="com.bluewhale.lockscreentest.lockscreen"/>-->
 
         <receiver android:name="receiver.MyWakefulReceiver"></receiver>
-        <activity android:name=".MainActivity"
+        <activity android:name="com.hmk1022.mementomori.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,7 +39,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".service.LockScreenService"
+        <service android:name="com.hmk1022.mementomori.service.LockScreenService"
             android:enabled="true"
             android:permission="android.permission.SYSTEM_ALERT_WINDOW"
             android:exported="false"/>

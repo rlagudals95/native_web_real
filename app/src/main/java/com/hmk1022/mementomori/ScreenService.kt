@@ -1,4 +1,4 @@
-package com.example.native_webview
+package com.hmk1022.mementomori
 
 import android.app.Service
 import android.content.Intent

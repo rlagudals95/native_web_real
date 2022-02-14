@@ -1,8 +1,9 @@
-package com.example.native_webview
+package com.hmk1022.mementomori
 
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
@@ -13,27 +14,22 @@ import android.os.Message
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
-import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import android.content.Intent
 import android.net.Uri
 import android.os.PowerManager
-import android.os.PowerManager.WakeLock
 import android.provider.Settings
 import android.util.Log
 import android.view.WindowManager
 
 import android.webkit.WebView
-import android.widget.Button
 import android.widget.Toast
-import androidx.core.content.ContextCompat.getSystemService
 import java.lang.Exception
-import android.webkit.WebResourceRequest
 import androidx.annotation.RequiresApi
-import com.example.native_webview.service.LockScreenService
-import com.kakao.sdk.common.util.Utility.getKeyHash
+import com.hmk1022.mementomori.service.LockScreenService
 import com.kakao.util.helper.Utility
+import java.net.URISyntaxException
 
 
 class MainActivity : AppCompatActivity() {
@@ -65,38 +61,68 @@ class MainActivity : AppCompatActivity() {
 //        }
 
 
-        override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-
-            if (url.startsWith("intent:")) {
+        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+            // 추후 추가 파라미터 url: String
+            if (request.url.scheme == "intent") {
                 try {
-                    val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
-                    val existPackage =
-                        packageManager.getLaunchIntentForPackage(intent.getPackage()!!)
-                    if (existPackage != null) {
+                    // Intent 생성
+                    val intent = Intent.parseUri(request.url.toString(), Intent.URI_INTENT_SCHEME)
+
+                    // 실행 가능한 앱이 있으면 앱 실행
+                    if (intent.resolveActivity(packageManager) != null) {
                         startActivity(intent)
-                    } else {
-                        val marketIntent = Intent(Intent.ACTION_VIEW)
-                        marketIntent.data = Uri.parse("market://details?id=" + intent.getPackage())
+                        Log.d(TAG, "ACTIVITY: ${intent.`package`}")
+                        return true
                     }
-                    return true
-                } catch (e: Exception) {
-                    try {
-                        val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
-                        if (intent.action!!.contains("kakao")) {
-                            view.loadUrl(intent.getStringExtra("browser_fallback_url")!!)
-                        } else {
-                            val marketIntent = Intent(Intent.ACTION_VIEW)
-                            marketIntent.data
-                            Uri.parse("market://details?id=" + intent.getPackage())
-                        }
-                    } catch (ex: Exception) {
-                        ex.printStackTrace()
+
+                    // Fallback URL이 있으면 현재 웹뷰에 로딩
+                    val fallbackUrl = intent.getStringExtra("browser_fallback_url")
+                    if (fallbackUrl != null) {
+                        view.loadUrl(fallbackUrl)
+                        Log.d(TAG, "FALLBACK: $fallbackUrl")
+                        return true
                     }
+
+                    Log.e(TAG, "Could not parse anythings")
+
+                } catch (e: URISyntaxException) {
+                    Log.e(TAG, "Invalid intent request", e)
                 }
-            } else {
-                view.loadUrl(url)
             }
-            return true
+
+            // 나머지 서비스 로직 구현
+
+            return false
+//            if (url.startsWith("intent:")) {
+//                try {
+//                    val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+//                    val existPackage =
+//                        packageManager.getLaunchIntentForPackage(intent.getPackage()!!)
+//                    if (existPackage != null) {
+//                        startActivity(intent)
+//                    } else {
+//                        val marketIntent = Intent(Intent.ACTION_VIEW)
+//                        marketIntent.data = Uri.parse("market://details?id=" + intent.getPackage())
+//                    }
+//                    return true
+//                } catch (e: Exception) {
+//                    try {
+//                        val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+//                        if (intent.action!!.contains("kakao")) {
+//                            view.loadUrl(intent.getStringExtra("browser_fallback_url")!!)
+//                        } else {
+//                            val marketIntent = Intent(Intent.ACTION_VIEW)
+//                            marketIntent.data
+//                            Uri.parse("market://details?id=" + intent.getPackage())
+//                        }
+//                    } catch (ex: Exception) {
+//                        ex.printStackTrace()
+//                    }
+//                }
+//            } else {
+//                view.loadUrl(url)
+//            }
+//            return true
         }
 
 
@@ -377,7 +403,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "hello", Toast.LENGTH_LONG).show()
             } else {
                 val intent = Intent(applicationContext, LockScreenService::class.java)
-                startForegroundService(intent)
+                //startForegroundService(intent)
             }
         }
     }
