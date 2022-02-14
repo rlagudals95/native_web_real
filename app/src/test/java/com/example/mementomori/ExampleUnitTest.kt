@@ -1,4 +1,4 @@
-package com.example.native_webview
+package com.example.mementomori
 
 import org.junit.Test
 

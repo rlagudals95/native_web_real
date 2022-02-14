@@ -1,4 +1,4 @@
-package com.example.native_webview
+package com.example.mementomori
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

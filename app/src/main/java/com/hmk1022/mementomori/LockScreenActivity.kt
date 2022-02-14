@@ -1,4 +1,4 @@
-package com.example.native_webview
+package com.hmk1022.mementomori
 
 import android.app.KeyguardManager
 import android.content.Context
@@ -6,8 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 
 
 class LockScreenActivity : AppCompatActivity() {
